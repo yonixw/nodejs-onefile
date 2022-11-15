@@ -1,0 +1,14 @@
+{
+  "name": "nodejs-onefile",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/yonixw/nodejs-onefile.git",
+  "author": "Yoni Water Man <yonixw@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "types": "npx -p typescript tsc src/**/*.js --declaration --allowJs --emitDeclarationOnly --outDir types"
+  },
+  "devDependencies": {
+    "jest": "^29.3.1"
+  }
+}
