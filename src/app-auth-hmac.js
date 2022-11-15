@@ -6,11 +6,11 @@ function secureRandom(bytes = 64) {
 }
 
 function appToken(appid) {
-    const SECRET = process.env.HMAC_SECRET;
+    const SECRET = process.env.APP_AUTH_HMAC_SECRET;
 
     if (!SECRET) {
-        console.log("HMAC_SECRET not defined, return random!!");
-        return "Missing define! random=" + secureRandom();
+        console.log("APP_AUTH_HMAC_SECRET not defined, return random!!");
+        return "Error: Missing define! random=" + secureRandom();
     }
 
     return crypto
@@ -22,12 +22,12 @@ function appToken(appid) {
 function signAppHMAC256(appid, timestamp = Date.now(), salt = secureRandom(16), appsecret = appToken(appid)) {
 
     if (!/^[a-zA-Z0-9\-]{5,}$/.test(appid || "")) {
-        return "Bad format appid, expecting=^[a-zA-Z0-9\-]{5,}$, random=" + secureRandom()
+        return "Error: Bad format appid, expecting=^[a-zA-Z0-9\-]{5,}$, random=" + secureRandom()
     }
     if (!appid || !timestamp || !salt) {
-        console.log("signAppHMAC256 Arguments are null, return random!",
+        console.log("Error: signAppHMAC256 Arguments are null, return random!",
             { appid, timestamp, salt });
-        return "Missing params! random=" + secureRandom();
+        return "Error: Missing params! random=" + secureRandom();
     }
 
     const hmac = crypto
@@ -42,13 +42,16 @@ function signAppHMAC256(appid, timestamp = Date.now(), salt = secureRandom(16), 
 function verifyAppHMAC256(appid, timestamp, salt, proof, maxTime = 5 * 60 * 1000) {
     const _time = parseInt(timestamp);
 
-    if (!appid || !_time || !proof || !salt || !parseInt(maxTime)) return false;
+    if (!appid || !_time || !proof || !salt || !parseInt(maxTime)) return {
+        valid: false, proofOk: false, timeWindowValid: false
+    }
+
 
     const timeWindowValid = (Math.abs(Date.now() - _time) < maxTime);
     const proofOk = signAppHMAC256(appid, timestamp, salt) === proof;
 
 
-    return proofOk && timeWindowValid;
+    return { valid: proofOk && timeWindowValid, proofOk, timeWindowValid };
 }
 
 function genServerHMACTicket(appid, timestamp = Date.now(), salt = secureRandom(16), algo = "sha256") {
@@ -58,7 +61,7 @@ function genServerHMACTicket(appid, timestamp = Date.now(), salt = secureRandom(
         return `sha256.ticketv1.${appid}.${timestamp}.${salt}.` +
             `${signAppHMAC256(appid, timestamp, salt)}`
     }
-    return "Unsupported algo '" + String(algo) + "' for token"
+    return "Error: Unsupported algo '" + String(algo) + "' for token"
 }
 
 function genAppClientHMACTicket(appid, appsecret, timestamp = Date.now(), salt = secureRandom(16), algo = "sha256") {
@@ -67,35 +70,45 @@ function genAppClientHMACTicket(appid, appsecret, timestamp = Date.now(), salt =
         return `sha256.ticketv1.${appid}.${timestamp}.${salt}.` +
             `${signAppHMAC256(appid, timestamp, salt, appsecret)}`
     }
-    return "Unsupported algo '" + String(algo) + "' for token"
+    return "Error: Unsupported algo '" + String(algo) + "' for token"
 }
 
 function verifyHMACTicket(ticket) {
+    let result = { valid: false, error: "init", appid: null }
     try {
         const parts = (ticket || "").split('.')
-        if (parts.length !== 6)
-            return { valid: false, error: "Ticket parts len mismatch" };
+
+        if (parts.length !== 6) {
+            result.error = "Ticket parts len mismatch";
+            return result
+        }
 
         let { 0: algo, 1: version, 2: appid, 3: timestamp, 4: salt, 5: proof } = parts;
         if (!algo || !appid || !timestamp || !salt || !proof) {
-            return { valid: false, error: "Missing params" };
+            result.error = "Missing params";
+            return result;
         }
 
         if (algo === "sha256" && version == "ticketv1") {
-            if (verifyAppHMAC256(appid, timestamp, salt, proof)) {
-                return { valid: true, appid, error: null }
+            const verifyResult = verifyAppHMAC256(appid, timestamp, salt, proof);
+            if (verifyResult.valid) {
+                result.valid = true
+                result.appid = appid
+                result.error = null
             }
             else {
-                return { valid: false, error: "Not valid ticket" }
+                result.error = "Not valid ticket " + JSON.stringify(verifyResult)
             }
         } else {
-            return { valid: false, error: "Unknwon verifyHMACTicket algo=" + algo + ", version=" + version };
+            result.error = "Unknwon verifyHMACTicket algo=" + algo + ", version=" + version;
         }
 
-        return { valid: false, error: "End of cases" };
     } catch (e) {
-        return { valid: false, error: `Error: ${e} ` };
+        result.valid = false;
+        result.error = `Error: ${e} `;
+        result.appid = null;
     }
+    return result;
 }
 
 function lambdaVerifyHMACTicket(event) {
@@ -109,12 +122,19 @@ function lambdaVerifyHMACTicket(event) {
     if (event.headers && event.headers["x-ticket"]) {
         ticket = event.headers["x-ticket"]
     }
-    //let { valid, appid, error } = verifyHMACTicket(ticket)
+    if (event.appid && event.appgroup) {
+        const _appid = event.appgroup + '-' + event.appid
+        // Act like verify failed and give info in error
+        // Assuming here only lambda admin can set appid in event (unlike http headers, params etc.)
+        return { valid: false, appid: _appid, error: `appsecret=${appToken(_appid)}` }
+    }
+
     return verifyHMACTicket(ticket);
 }
 
 module.exports = {
     appToken,
+    signAppHMAC256, verifyAppHMAC256,
     genServerHMACTicket, genAppClientHMACTicket,
     verifyHMACTicket,
     lambdaVerifyHMACTicket
