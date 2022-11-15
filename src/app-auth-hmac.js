@@ -130,7 +130,7 @@ function lambdaVerifyHMACTicket(event) {
         const _appid = event.appgroup + '-' + event.appid
         // Act like verify failed and give info in error
         // Assuming here only lambda admin can set appid in event (unlike http headers, params etc.)
-        return { valid: false, appid: _appid, error: `appsecret=${appToken(_appid)}` }
+        return { valid: false, appid: _appid, error: `appid=${_appid}, appsecret=${appToken(_appid)}` }
     }
 
     return verifyHMACTicket(ticket);
