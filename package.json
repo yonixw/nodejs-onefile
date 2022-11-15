@@ -6,7 +6,8 @@
   "author": "Yoni Water Man <yonixw@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "types": "npx -p typescript tsc src/**/*.js --declaration --allowJs --emitDeclarationOnly --outDir types"
+    "typeOfFetch": "yarn _typeOf ./src/fetch-onefile.ts",
+    "_typeOf": "npx -p typescript tsc --declaration --declarationDir types --outDir types"
   },
   "devDependencies": {
     "jest": "^29.3.1"
