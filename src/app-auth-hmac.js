@@ -13,6 +13,10 @@ function appToken(appid) {
         return "Error: Missing define! random=" + secureRandom();
     }
 
+    if (!/^[a-z0-9\-]{5,}$/.test(appid || "")) {
+        return "Error: Bad format appid, expecting=^[a-zA-Z0-9\-]{5,}$, random=" + secureRandom()
+    }
+
     return crypto
         .createHash('sha256')
         .update(`sha256|${appid}|${SECRET}|${appid}|${SECRET}`)
@@ -21,7 +25,7 @@ function appToken(appid) {
 
 function signAppHMAC256(appid, timestamp = Date.now(), salt = secureRandom(16), appsecret = appToken(appid)) {
 
-    if (!/^[a-zA-Z0-9\-]{5,}$/.test(appid || "")) {
+    if (!/^[a-z0-9\-]{5,}$/.test(appid || "")) {
         return "Error: Bad format appid, expecting=^[a-zA-Z0-9\-]{5,}$, random=" + secureRandom()
     }
     if (!appid || !timestamp || !salt) {

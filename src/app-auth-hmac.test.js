@@ -20,13 +20,23 @@ describe("Main set", () => {
         expect(result).toBe(true);
     }
 
-    it("Should return no secret on empty", () => {
+    it("Should return no app secret on empty or problem", () => {
+        expectError(appToken("apppppppp"), true)
+        expectError(appToken("Bad App Name!!!"))
+        expectError(appToken(false))
         process.env.APP_AUTH_HMAC_SECRET = ""
         expectError(appToken("apppppppp"))
     })
 
     it("Should not sign on bad param", () => {
         process.env.APP_AUTH_HMAC_SECRET = ""
+
+        expectError(genAppClientHMACTicket())
+        expectError(genAppClientHMACTicket("bad app name !!! . . "))
+        expectError(genAppClientHMACTicket("app-id-12345", null, null, null))
+        expectError(genAppClientHMACTicket("app-id-12345", appToken("app-id-12345"), null, null))
+        expectError(genAppClientHMACTicket("app-id-12345", appToken("app-id-12345"), 0, null))
+        expectError(genAppClientHMACTicket("app-id-12345", appToken("app-id-12345"), 0, "salt", null))
 
         expectError(signAppHMAC256())
         expectError(signAppHMAC256("bad app name !!! . . "));
