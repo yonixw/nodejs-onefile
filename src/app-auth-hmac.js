@@ -44,18 +44,28 @@ function verifyAppHMAC256(appid, timestamp, salt, proof, maxTime = 5 * 60 * 1000
 
     if (!appid || !_time || !proof || !salt || !parseInt(maxTime)) return false;
 
-    const timeWindowValid = (Date.now() - _time < maxTime);
+    const timeWindowValid = (Math.abs(Date.now() - _time) < maxTime);
     const proofOk = signAppHMAC256(appid, timestamp, salt) === proof;
 
 
     return proofOk && timeWindowValid;
 }
 
-function genHMACTicket(appid, timestamp = Date.now(), salt = secureRandom(16), algo = "sha256") {
+function genServerHMACTicket(appid, timestamp = Date.now(), salt = secureRandom(16), algo = "sha256") {
     //signAppHMAC000 has the shared secret in the proof
 
     if (algo == "sha256") {
-        return `sha256.ticketv1.${appid}.${timestamp}.${salt}.${signAppHMAC256(appid, timestamp, salt)}`
+        return `sha256.ticketv1.${appid}.${timestamp}.${salt}.` +
+            `${signAppHMAC256(appid, timestamp, salt)}`
+    }
+    return "Unsupported algo '" + String(algo) + "' for token"
+}
+
+function genAppClientHMACTicket(appid, appsecret, timestamp = Date.now(), salt = secureRandom(16), algo = "sha256") {
+
+    if (algo == "sha256") {
+        return `sha256.ticketv1.${appid}.${timestamp}.${salt}.` +
+            `${signAppHMAC256(appid, timestamp, salt, appsecret)}`
     }
     return "Unsupported algo '" + String(algo) + "' for token"
 }
@@ -84,7 +94,7 @@ function verifyHMACTicket(ticket) {
 
         return { valid: false, error: "End of cases" };
     } catch (e) {
-        return { valid: false, error: `Error: ${e}` };
+        return { valid: false, error: `Error: ${e} ` };
     }
 }
 
@@ -104,6 +114,8 @@ function lambdaVerifyHMACTicket(event) {
 }
 
 module.exports = {
-    genHMACTicket, verifyHMACTicket,
+    appToken,
+    genServerHMACTicket, genAppClientHMACTicket,
+    verifyHMACTicket,
     lambdaVerifyHMACTicket
 }
