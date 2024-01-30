@@ -7,8 +7,13 @@
 ██   ██ ██           ██     ██    ██ ██      ██  ██  ██      ██  ██      ██ 
 ██   ██ ███████ ███████      ██████   ██████ ██      ██       ████   ██  ██ 
                                                                             
-                                                                        
+How to use:
+const { aes_gcm_encrypt, aes_gcm_decrypt } = require("./aes-gcm.utils");
 
+aes_gcm_encrypt(plain_text:string, optionalKey:string?)
+aes_gcm_decrypt(encrypt_result: string, optionalKey:string?)
+
+env.AES_KEY will be used if not key provided
 
 */
 
@@ -32,7 +37,7 @@ const common = {
 // IV||encrypted_text||tag
 
 const prepare = (keyStr) => {
-    keyStr = keyStr || "";
+    keyStr = keyStr || process.env.AES_KEY || "";
     if (keyStr.length < 36)
         throw new Error("Key must be at least 36 char long (like UUID)")
 
@@ -44,7 +49,7 @@ const prepare = (keyStr) => {
     return { keyHash }
 }
 
-const encrypt = (keyStr, plainStr) => {
+const encrypt = (plainStr, keyStr = null) => {
     let { keyHash } = prepare(keyStr);
     let iv = crypto.randomBytes(12)
 
@@ -62,7 +67,7 @@ const encrypt = (keyStr, plainStr) => {
     return Buffer.from(JSON.stringify(result), "utf-8").toString("base64");
 }
 
-const decrypt = (keyStr, encObj) => {
+const decrypt = (encObj, keyStr = null) => {
     let { keyHash } = prepare(keyStr);
     let { iv, enc, tag } = JSON.parse(Buffer.from(encObj, "base64").toString("utf-8"));
 
@@ -75,4 +80,4 @@ const decrypt = (keyStr, encObj) => {
     return str;
 }
 
-console.log(encrypt(crypto.randomUUID(), "123"))
+module.exports = { aes_gcm_encrypt: encrypt, aes_gcm_decrypt: decrypt }
