@@ -1,3 +1,5 @@
+// From: https://github.com/yonixw/nodejs-onefile
+
 const crypto = require("crypto")
 
 function secureRandom(bytes = 64) {

@@ -1,3 +1,5 @@
+// From: https://github.com/yonixw/nodejs-onefile
+
 const { exec } = require('child_process')
 
 const execLive = (command) => {

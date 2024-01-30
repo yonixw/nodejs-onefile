@@ -1,3 +1,4 @@
+// From: https://github.com/yonixw/nodejs-onefile
 
 const {
     appToken,
