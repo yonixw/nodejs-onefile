@@ -1,17 +1,18 @@
-// From: https://github.com/yonixw/nodejs-onefile
-
 /*
  █████  ███████ ███████      ██████   ██████ ███    ███     ██    ██     ██ 
 ██   ██ ██      ██          ██       ██      ████  ████     ██    ██    ███ 
 ███████ █████   ███████     ██   ███ ██      ██ ████ ██     ██    ██     ██ 
 ██   ██ ██           ██     ██    ██ ██      ██  ██  ██      ██  ██      ██ 
 ██   ██ ███████ ███████      ██████   ██████ ██      ██       ████   ██  ██ 
-                                                                            
+            From: https://github.com/yonixw/nodejs-onefile
+
+Simple encrypting and decrypting with AES GCM. 
+
 How to use:
 const { aes_gcm_encrypt, aes_gcm_decrypt } = require("./aes-gcm-utils");
 
-aes_gcm_encrypt(plain_text:string, optionalKey:string?)
-aes_gcm_decrypt(encrypt_result: string, optionalKey:string?)
+aes_gcm_encrypt(plain_text:string, optionalKey:string?) : string
+aes_gcm_decrypt(encrypt_result: string, optionalKey:string?) : string
 
 env.AES_KEY will be used if not key provided
 

@@ -1,4 +1,13 @@
-// From: https://github.com/yonixw/nodejs-onefile
+/*
+███████ ██   ██ ███████  ██████     ██      ██ ██    ██ ███████     ██    ██     ██ 
+██       ██ ██  ██      ██          ██      ██ ██    ██ ██          ██    ██    ███ 
+█████     ███   █████   ██          ██      ██ ██    ██ █████       ██    ██     ██ 
+██       ██ ██  ██      ██          ██      ██  ██  ██  ██           ██  ██      ██ 
+███████ ██   ██ ███████  ██████     ███████ ██   ████   ███████       ████   ██  ██                                                                                    
+            From: https://github.com/yonixw/nodejs-onefile
+
+Example of running a process and streaming its output.
+*/
 
 const { exec } = require('child_process')
 
@@ -24,3 +33,5 @@ const execLive = (command) => {
         })
     })
 }
+
+module.exports = { execLive }

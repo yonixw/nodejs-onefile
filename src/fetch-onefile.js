@@ -1,28 +1,28 @@
-// From: https://github.com/yonixw/nodejs-onefile
-
-const https = require("https");
-
 /*
+███████ ███████ ████████  ██████ ██   ██     ██    ██     ██ 
+██      ██         ██    ██      ██   ██     ██    ██    ███ 
+█████   █████      ██    ██      ███████     ██    ██     ██ 
+██      ██         ██    ██      ██   ██      ██  ██      ██ 
+██      ███████    ██     ██████ ██   ██       ████   ██  ██ 
+            From: https://github.com/yonixw/nodejs-onefile
 
-███████ ██   ██  █████  ███    ███ ██████  ██      ███████ ███████ 
-██       ██ ██  ██   ██ ████  ████ ██   ██ ██      ██      ██      
-█████     ███   ███████ ██ ████ ██ ██████  ██      █████   ███████ 
-██       ██ ██  ██   ██ ██  ██  ██ ██      ██      ██           ██ 
-███████ ██   ██ ██   ██ ██      ██ ██      ███████ ███████ ███████ 
+Simple HTTPS fetching for urls. With get and post methods.
+
+How to use:
 
 postReq(echo + "?dpp1=123", null, { x: 5 })
-  .then((e) => console.log("result-", e))
-  .catch((e) => console.log("error-", e));
+.then((e) => console.log("result-", e))
+.catch((e) => console.log("error-", e));
 
 postReq(
-  "https://domain.com/echo.php",
-  { "Content-type": "application/x-www-form-urlencoded" },
-  "dpp1=123&dpp2=456"
-)
-  .then((e) => console.log("result-", e))
-  .catch((e) => console.log("error-", e));
-  
------------------------------------------------------------------------
+    "https://domain.com/echo.php",
+    { "Content-type": "application/x-www-form-urlencoded" },
+    "dpp1=123&dpp2=456"
+    )
+    .then((e) => console.log("result-", e))
+    .catch((e) => console.log("error-", e));
+    
+    -----------------------------------------------------------------------
 
 const { postReq, getReq } = require("./fetch-onefile")
 const {SLACK_URL} = process.env
@@ -30,7 +30,7 @@ const {SLACK_URL} = process.env
 exports.handler = async (event) => {
     let result = {err: "initial"}
     try {
-         result = await postReq(SLACK_URL, null, {"text": "try"});
+        result = await postReq(SLACK_URL, null, {"text": "try"});
         
     } catch (e) {
         result = {"err":`${e}`}
@@ -44,6 +44,8 @@ exports.handler = async (event) => {
 };
 
 */
+
+const https = require("https");
 
 function getReq(_url, _headers) {
     return new Promise((ok, bad) => {

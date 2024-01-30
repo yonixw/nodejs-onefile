@@ -1,4 +1,33 @@
-// From: https://github.com/yonixw/nodejs-onefile
+/*
+ █████  ██████  ██████       █████  ██    ██ ████████ ██   ██     ██    ██     ██ 
+██   ██ ██   ██ ██   ██     ██   ██ ██    ██    ██    ██   ██     ██    ██    ███ 
+███████ ██████  ██████      ███████ ██    ██    ██    ███████     ██    ██     ██ 
+██   ██ ██      ██          ██   ██ ██    ██    ██    ██   ██      ██  ██      ██ 
+██   ██ ██      ██          ██   ██  ██████     ██    ██   ██       ████   ██  ██ 
+            From: https://github.com/yonixw/nodejs-onefile
+
+Simple system to create apps that can come and ask. each app will have a secret derived from a master secret.
+That way you can track what app was used, and ban them if any abuse found without affecting other apps.
+
+TODO: move to JWT where shared_secret = hash(master_secret, appid) ? Do we have "onefile" for JWT?
+
+How to use:
+    Backend Server:
+        env.APP_AUTH_HMAC_SECRET:
+            - Long secure master secret
+        appToken(appid:string): string 
+            - Create the secret token that the app need to know (together with appid) to authenticate as a server app.
+            - Deterministic, so the server doesn't have to store it in DB
+            - Should be protected with Admin (otherwise one can get fake apps)
+        verifyHMACTicket (ticket: string) : { valid: boolean, error: string, appid: string? }
+            - Verify a ticket from a client. If valid, appid will have value;
+            - There is a maximum of `maxTime` (5min) before a ticket becomes invalid.
+    Client/App Server:
+        genAppClientHMACTicket(appid:string, appsecret:string) : string
+            - The ticket to append to the request to authenticate as an app of the server
+
+*/
+
 
 const crypto = require("crypto")
 
