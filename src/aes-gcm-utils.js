@@ -8,7 +8,7 @@
 ██   ██ ███████ ███████      ██████   ██████ ██      ██       ████   ██  ██ 
                                                                             
 How to use:
-const { aes_gcm_encrypt, aes_gcm_decrypt } = require("./aes-gcm.utils");
+const { aes_gcm_encrypt, aes_gcm_decrypt } = require("./aes-gcm-utils");
 
 aes_gcm_encrypt(plain_text:string, optionalKey:string?)
 aes_gcm_decrypt(encrypt_result: string, optionalKey:string?)
